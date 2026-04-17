@@ -12,15 +12,15 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen>
     with TickerProviderStateMixin {
-  late final AnimationController _entryCtrl;
-  late final AnimationController _floatCtrl;
-  late final AnimationController _rotateCtrl;
 
-  late final Animation<double> _heroFade;
-  late final Animation<double> _heroScale;
+  late final AnimationController _entryCtrl;
+  late final AnimationController _orbitCtrl;
+
+  late final Animation<double> _logoFade;
+  late final Animation<double> _logoScale;
   late final Animation<Offset> _contentSlide;
   late final Animation<double> _contentFade;
-  late final Animation<double> _ctaFade;
+  late final Animation<double> _ctaScale;
 
   @override
   void initState() {
@@ -28,51 +28,47 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
     _entryCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1100),
     )..forward();
 
-    _floatCtrl = AnimationController(
+    _orbitCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 4),
-    )..repeat(reverse: true);
-
-    _rotateCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 20),
+      duration: const Duration(seconds: 18),
     )..repeat();
 
-    _heroFade = CurvedAnimation(
+    _logoFade = CurvedAnimation(
       parent: _entryCtrl,
       curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
     );
-    _heroScale = Tween<double>(begin: 0.75, end: 1.0).animate(
+    _logoScale = Tween<double>(begin: 0.7, end: 1.0).animate(
       CurvedAnimation(
         parent: _entryCtrl,
         curve: const Interval(0.0, 0.6, curve: Curves.elasticOut),
       ),
     );
     _contentSlide = Tween<Offset>(
-      begin: const Offset(0, 0.08),
+      begin: const Offset(0, 0.06),
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _entryCtrl,
-      curve: const Interval(0.3, 0.8, curve: Curves.easeOut),
+      curve: const Interval(0.35, 0.85, curve: Curves.easeOutCubic),
     ));
     _contentFade = CurvedAnimation(
       parent: _entryCtrl,
       curve: const Interval(0.3, 0.8, curve: Curves.easeOut),
     );
-    _ctaFade = CurvedAnimation(
-      parent: _entryCtrl,
-      curve: const Interval(0.6, 1.0, curve: Curves.easeOut),
+    _ctaScale = Tween<double>(begin: 0.92, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _entryCtrl,
+        curve: const Interval(0.65, 1.0, curve: Curves.easeOutBack),
+      ),
     );
   }
 
   @override
   void dispose() {
     _entryCtrl.dispose();
-    _floatCtrl.dispose();
-    _rotateCtrl.dispose();
+    _orbitCtrl.dispose();
     super.dispose();
   }
 
@@ -81,349 +77,264 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFF1A6B52),
-              Color(0xFF2E9B78),
-              Color(0xFF3DAA88),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            stops: [0.0, 0.55, 1.0],
-          ),
-        ),
-        child: SafeArea(
-          child: Stack(
-            children: [
-              // ── Decorative background rings ─────────────────────────────
-              AnimatedBuilder(
-                animation: _rotateCtrl,
-                builder: (_, __) => Positioned(
-                  top: -size.width * 0.35,
-                  right: -size.width * 0.25,
-                  child: ExcludeSemantics(
+      backgroundColor: AppTheme.primary,
+      body: Stack(
+        children: [
+          // ── Slow-orbit decorative arcs ─────────────────────────────────────
+          ExcludeSemantics(
+            child: AnimatedBuilder(
+              animation: _orbitCtrl,
+              builder: (_, __) {
+                final angle = _orbitCtrl.value * 2 * math.pi;
+                return Stack(children: [
+                  Positioned(
+                    top: -size.width * 0.3,
+                    right: -size.width * 0.2,
                     child: Transform.rotate(
-                    angle: _rotateCtrl.value * 2 * math.pi,
-                    child: Container(
-                      width: size.width * 0.85,
-                      height: size.width * 0.85,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.07),
-                          width: 1.5,
+                      angle: angle,
+                      child: Container(
+                        width: size.width * 0.8,
+                        height: size.width * 0.8,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.06),
+                            width: 1,
+                          ),
                         ),
                       ),
                     ),
                   ),
+                  Positioned(
+                    bottom: -size.width * 0.25,
+                    left: -size.width * 0.25,
+                    child: Transform.rotate(
+                      angle: -angle * 0.7,
+                      child: Container(
+                        width: size.width * 0.7,
+                        height: size.width * 0.7,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.04),
+                            width: 1,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              Positioned(
-                bottom: -size.width * 0.2,
-                left: -size.width * 0.3,
-                child: ExcludeSemantics(
-                  child: Container(
-                  width: size.width * 0.75,
-                  height: size.width * 0.75,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.05),
-                      width: 1,
+                ]);
+              },
+            ),
+          ),
+
+          // ── Layout ─────────────────────────────────────────────────────────
+          SafeArea(
+            child: Column(
+              children: [
+                // Hero — top ~42%
+                Expanded(
+                  flex: 42,
+                  child: Center(
+                    child: FadeTransition(
+                      opacity: _logoFade,
+                      child: ScaleTransition(
+                        scale: _logoScale,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Logo
+                            Container(
+                              width: 92,
+                              height: 92,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white.withValues(alpha: 0.12),
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.2),
+                                  width: 1.5,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.2),
+                                    blurRadius: 40,
+                                    offset: const Offset(0, 14),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.spa_rounded,
+                                size: 46,
+                                color: Colors.white,
+                                semanticLabel: 'Ubuncare',
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            const Text(
+                              'Ubuncare',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 42,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.8,
+                                height: 1.0,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Your space for calm & clarity',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.65),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
-                ),
-              ),
 
-              // ── Floating particles ──────────────────────────────────────
-              AnimatedBuilder(
-                animation: _floatCtrl,
-                builder: (_, __) {
-                  final float = _floatCtrl.value;
-                  return Stack(children: [
-                    _Particle(x: 0.15, y: 0.18, size: 8, opacity: 0.2,
-                        offset: float * 12),
-                    _Particle(x: 0.82, y: 0.12, size: 12, opacity: 0.15,
-                        offset: -float * 10),
-                    _Particle(x: 0.72, y: 0.55, size: 6, opacity: 0.18,
-                        offset: float * 8),
-                    _Particle(x: 0.08, y: 0.65, size: 10, opacity: 0.12,
-                        offset: -float * 14),
-                    _Particle(x: 0.55, y: 0.88, size: 7, opacity: 0.16,
-                        offset: float * 6),
-                  ]);
-                },
-              ),
+                // Content — bottom ~58%
+                Expanded(
+                  flex: 58,
+                  child: FadeTransition(
+                    opacity: _contentFade,
+                    child: SlideTransition(
+                      position: _contentSlide,
+                      child: Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: AppTheme.bgPage,
+                          borderRadius: const BorderRadius.only(
+                            topLeft:  Radius.circular(36),
+                            topRight: Radius.circular(36),
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            // Drag handle
+                            const SizedBox(height: 12),
+                            Container(
+                              width: 36,
+                              height: 4,
+                              decoration: BoxDecoration(
+                                color: AppTheme.bgBorder,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
 
-              // ── Main content ────────────────────────────────────────────
-              Column(
-                children: [
-                  // Hero area — top 45%
-                  Expanded(
-                    flex: 45,
-                    child: Center(
-                      child: AnimatedBuilder(
-                        animation: Listenable.merge([_floatCtrl]),
-                        builder: (_, __) {
-                          return FadeTransition(
-                            opacity: _heroFade,
-                            child: ScaleTransition(
-                              scale: _heroScale,
-                              child: Transform.translate(
-                                offset: Offset(
-                                    0, -8 + _floatCtrl.value * 14),
+                            Expanded(
+                              child: SingleChildScrollView(
+                                padding: const EdgeInsets.fromLTRB(28, 0, 28, 0),
                                 child: Column(
-                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    // Logo
-                                    Container(
-                                      width: 100,
-                                      height: 100,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Colors.white
-                                            .withValues(alpha: 0.15),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black
-                                                .withValues(alpha: 0.18),
-                                            blurRadius: 32,
-                                            offset: const Offset(0, 12),
+                                    Text(
+                                      'Built for your wellbeing',
+                                      style: AppTheme.headingMd,
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      'A calm, private space to check in with yourself — no accounts, no data sharing.',
+                                      style: AppTheme.bodyMd,
+                                    ),
+
+                                    const SizedBox(height: 28),
+
+                                    _FeatureItem(
+                                      icon: Icons.psychology_alt_rounded,
+                                      color: AppTheme.primary,
+                                      bg: AppTheme.primarySurface,
+                                      title: 'Daily Mood Check-in',
+                                      body: 'A guided conversation to understand how you feel right now.',
+                                    ),
+                                    const SizedBox(height: 14),
+                                    _FeatureItem(
+                                      icon: Icons.air_rounded,
+                                      color: const Color(0xFF3A6B82),
+                                      bg: const Color(0xFFEDF5F9),
+                                      title: 'Wellness Toolkit',
+                                      body: 'Breathing, grounding, body scan — tools for real moments of stress.',
+                                    ),
+                                    const SizedBox(height: 14),
+                                    _FeatureItem(
+                                      icon: Icons.lock_rounded,
+                                      color: const Color(0xFF6B4E82),
+                                      bg: const Color(0xFFF4EFF9),
+                                      title: 'Private by Design',
+                                      body: 'Everything stays on your device. Nothing is stored externally.',
+                                    ),
+
+                                    const SizedBox(height: 32),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            // CTA pinned at bottom
+                            ScaleTransition(
+                              scale: _ctaScale,
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(28, 0, 28, 32),
+                                child: Column(
+                                  children: [
+                                    SizedBox(
+                                      width: double.infinity,
+                                      height: 56,
+                                      child: FilledButton(
+                                        onPressed: () => context.go('/age'),
+                                        child: const Text(
+                                          'Get Started',
+                                          style: TextStyle(
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w700,
                                           ),
-                                        ],
-                                      ),
-                                      child: const Icon(
-                                        Icons.spa_rounded,
-                                        size: 52,
-                                        color: Colors.white,
-                                        semanticLabel: 'Ubuncare',
-                                      ),
-                                    ),
-
-                                    const SizedBox(height: 24),
-
-                                    const Text(
-                                      'Ubuncare',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 44,
-                                        fontWeight: FontWeight.w800,
-                                        letterSpacing: -0.5,
-                                        height: 1.1,
-                                      ),
-                                    ),
-
-                                    const SizedBox(height: 10),
-
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16, vertical: 7),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white
-                                            .withValues(alpha: 0.15),
-                                        borderRadius:
-                                            BorderRadius.circular(20),
-                                      ),
-                                      child: Text(
-                                        'Your space for calm & clarity',
-                                        style: TextStyle(
-                                          color: Colors.white
-                                              .withValues(alpha: 0.9),
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
                                         ),
                                       ),
+                                    ),
+                                    const SizedBox(height: 14),
+                                    Wrap(
+                                      alignment: WrapAlignment.center,
+                                      spacing: 8,
+                                      children: const [
+                                        _TrustBadge('✓  Free'),
+                                        _TrustBadge('✓  No account'),
+                                        _TrustBadge('✓  Private'),
+                                      ],
                                     ),
                                   ],
                                 ),
                               ),
                             ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-
-                  // Content area — bottom 55%
-                  Expanded(
-                    flex: 55,
-                    child: FadeTransition(
-                      opacity: _contentFade,
-                      child: SlideTransition(
-                        position: _contentSlide,
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.08),
-                            borderRadius: const BorderRadius.only(
-                              topLeft:  Radius.circular(36),
-                              topRight: Radius.circular(36),
-                            ),
-                            border: Border(
-                              top: BorderSide(
-                                color:
-                                    Colors.white.withValues(alpha: 0.2),
-                                width: 1,
-                              ),
-                            ),
-                          ),
-                          child: SingleChildScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Everything you need\nfor your wellbeing',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w700,
-                                    height: 1.3,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 20),
-
-                                _FeatureRow(
-                                  icon: Icons.psychology_alt_rounded,
-                                  title: 'Daily Mood Check-in',
-                                  body:
-                                      'A guided, compassionate conversation to understand how you feel.',
-                                ),
-                                const SizedBox(height: 12),
-                                _FeatureRow(
-                                  icon: Icons.spa_rounded,
-                                  title: 'Wellness Toolkit',
-                                  body:
-                                      'Breathing, grounding, body scan — tools for real moments of stress.',
-                                ),
-                                const SizedBox(height: 12),
-                                _FeatureRow(
-                                  icon: Icons.lock_rounded,
-                                  title: 'Private by Design',
-                                  body:
-                                      'Everything stays on your device. No accounts, no data sharing.',
-                                ),
-
-                                const SizedBox(height: 28),
-
-                                // CTA
-                                FadeTransition(
-                                  opacity: _ctaFade,
-                                  child: Column(
-                                    children: [
-                                      SizedBox(
-                                        width: double.infinity,
-                                        height: 56,
-                                        child: FilledButton(
-                                          style: FilledButton.styleFrom(
-                                            backgroundColor: Colors.white,
-                                            foregroundColor:
-                                                AppTheme.primary,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                      16),
-                                            ),
-                                          ),
-                                          onPressed: () =>
-                                              context.go('/age'),
-                                          child: const Text(
-                                            'Get Started',
-                                            style: TextStyle(
-                                              fontSize: 17,
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-
-                                      const SizedBox(height: 16),
-
-                                      // Trust pills
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          _TrustPill('Free'),
-                                          const SizedBox(width: 8),
-                                          _TrustPill('No account needed'),
-                                          const SizedBox(width: 8),
-                                          _TrustPill('Private'),
-                                        ],
-                                      ),
-
-                                      const SizedBox(height: 24),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                          ],
                         ),
                       ),
                     ),
                   ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Floating particle
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _Particle extends StatelessWidget {
-  final double x, y, size, opacity, offset;
-  const _Particle({
-    required this.x,
-    required this.y,
-    required this.size,
-    required this.opacity,
-    required this.offset,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final sw = MediaQuery.of(context).size.width;
-    final sh = MediaQuery.of(context).size.height;
-    return Positioned(
-      left: x * sw,
-      top: y * sh + offset,
-      child: ExcludeSemantics(
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: opacity),
-            shape: BoxShape.circle,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Feature row
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _FeatureRow extends StatelessWidget {
+class _FeatureItem extends StatelessWidget {
   final IconData icon;
-  final String title;
-  final String body;
+  final Color color, bg;
+  final String title, body;
 
-  const _FeatureRow({
+  const _FeatureItem({
     required this.icon,
+    required this.color,
+    required this.bg,
     required this.title,
     required this.body,
   });
@@ -433,40 +344,24 @@ class _FeatureRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ExcludeSemantics(
-          child: Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: Colors.white, size: 22),
+        Container(
+          width: 46,
+          height: 46,
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(14),
           ),
+          child: Icon(icon, color: color, size: 22),
         ),
         const SizedBox(width: 14),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  height: 1.2,
-                ),
-              ),
+              const SizedBox(height: 2),
+              Text(title, style: AppTheme.headingXs),
               const SizedBox(height: 3),
-              Text(
-                body,
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.75),
-                  fontSize: 12,
-                  height: 1.4,
-                ),
-              ),
+              Text(body, style: AppTheme.bodyMd),
             ],
           ),
         ),
@@ -476,28 +371,23 @@ class _FeatureRow extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Trust pill
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _TrustPill extends StatelessWidget {
+class _TrustBadge extends StatelessWidget {
   final String label;
-  const _TrustPill(this.label);
+  const _TrustBadge(this.label);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.12),
+        color: AppTheme.primarySurface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
       ),
       child: Text(
         label,
-        style: TextStyle(
-          color: Colors.white.withValues(alpha: 0.85),
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
+        style: AppTheme.bodySm.copyWith(
+          color: AppTheme.primary,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );

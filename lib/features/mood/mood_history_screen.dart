@@ -106,46 +106,59 @@ class _MoodHistoryScreenState extends State<MoodHistoryScreen>
     return Scaffold(
       backgroundColor: AppTheme.bgPage,
       appBar: AppBar(
-        backgroundColor: AppTheme.primary,
+        backgroundColor: AppTheme.bgPage,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        foregroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.white),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          tooltip: 'Go back',
-          onPressed: () {
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go('/home');
-            }
-          },
-        ),
-        title: const Text('Mood Journey'),
-        actions: [
-          if (_entries.isNotEmpty)
-            Tooltip(
-              message: 'Clear all entries',
-              child: IconButton(
-                icon: const Icon(Icons.delete_outline_rounded),
-                onPressed: _confirmClear,
+        toolbarHeight: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(116),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 16, 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('TRACKING', style: AppTheme.overline),
+                          const SizedBox(height: 2),
+                          Text('Mood Journey',
+                              style: AppTheme.headingMd.copyWith(
+                                fontSize: 26, letterSpacing: -0.3)),
+                        ],
+                      ),
+                    ),
+                    if (_entries.isNotEmpty)
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline_rounded,
+                            color: AppTheme.textMuted, size: 22),
+                        tooltip: 'Clear all entries',
+                        onPressed: _confirmClear,
+                      ),
+                  ],
+                ),
               ),
-            ),
-        ],
-        bottom: TabBar(
-          controller: _tabCtrl,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white60,
-          indicatorColor: Colors.white,
-          indicatorSize: TabBarIndicatorSize.label,
-          labelStyle:
-              const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-          tabs: const [
-            Tab(text: 'Overview'),
-            Tab(text: 'Achievements'),
-            Tab(text: 'Journal'),
-          ],
+              TabBar(
+                controller: _tabCtrl,
+                labelColor: AppTheme.primary,
+                unselectedLabelColor: AppTheme.textMuted,
+                indicatorColor: AppTheme.primary,
+                indicatorSize: TabBarIndicatorSize.label,
+                dividerColor: AppTheme.bgBorder,
+                labelStyle: const TextStyle(
+                    fontSize: 13, fontWeight: FontWeight.w600),
+                tabs: const [
+                  Tab(text: 'Overview'),
+                  Tab(text: 'Achievements'),
+                  Tab(text: 'Journal'),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
       body: _loading

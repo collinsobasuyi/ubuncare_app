@@ -59,113 +59,72 @@ class SettingsScreen extends StatelessWidget {
         slivers: [
           // ── Header ───────────────────────────────────────────────────────────
           SliverToBoxAdapter(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: AppTheme.primaryGradient,
-                borderRadius: BorderRadius.only(
-                  bottomLeft:  Radius.circular(32),
-                  bottomRight: Radius.circular(32),
-                ),
-              ),
-              child: SafeArea(
-                bottom: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Back button row
-                      Row(
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('PROFILE', style: AppTheme.overline),
+                    const SizedBox(height: 4),
+                    Text('Settings', style: AppTheme.displayLg.copyWith(
+                      fontSize: 34,
+                    )),
+                    const SizedBox(height: 20),
+                    // Profile card
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            accent.withValues(alpha: 0.08),
+                            accent.withValues(alpha: 0.04),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(AppTheme.cornerRadiusMd),
+                        border: Border.all(
+                          color: accent.withValues(alpha: 0.2),
+                        ),
+                        boxShadow: AppTheme.shadowSm,
+                      ),
+                      child: Row(
                         children: [
-                          IconButton(
-                            tooltip: 'Go back',
-                            icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                                color: Colors.white, size: 20),
-                            onPressed: () => context.pop(),
+                          Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: accent.withValues(alpha: 0.12),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(icon, color: accent, size: 28),
                           ),
-                          const Expanded(
-                            child: Text(
-                              'Settings',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  (name != null && name.isNotEmpty)
+                                      ? name
+                                      : 'Hello there',
+                                  style: AppTheme.headingSm,
+                                ),
+                                const SizedBox(height: 3),
+                                if (avatar != null)
+                                  Text(
+                                    '$avatar · $tagline',
+                                    style: AppTheme.bodySm,
+                                  ),
+                              ],
                             ),
                           ),
-                          const SizedBox(width: 48),
                         ],
                       ),
-
-                      const SizedBox(height: 20),
-
-                      // Profile card
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.2)),
-                        ),
-                        child: Row(
-                          children: [
-                            // Guide avatar
-                            Container(
-                              width: 60,
-                              height: 60,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(icon, color: Colors.white, size: 30),
-                            ),
-
-                            const SizedBox(width: 16),
-
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    (name != null && name.isNotEmpty)
-                                        ? name
-                                        : 'Hello there',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  if (avatar != null) ...[
-                                    Text(
-                                      'Guide: $avatar',
-                                      style: TextStyle(
-                                        color: Colors.white.withValues(
-                                            alpha: 0.9),
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    Text(
-                                      tagline,
-                                      style: TextStyle(
-                                        color: Colors.white.withValues(
-                                            alpha: 0.7),
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -538,12 +497,12 @@ class _SettingsTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: AppTheme.bgSurface,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(16),
       child: InkWell(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
           child: Row(
             children: [
               Container(

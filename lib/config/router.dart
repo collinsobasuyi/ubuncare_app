@@ -10,11 +10,11 @@ import '../features/onboarding/feature_tour_screen.dart';
 import '../features/onboarding/your_name_screen.dart';
 import '../features/onboarding/consent_screen.dart';
 import '../features/avatar/avatar_screen.dart';
-import '../features/home/home_screen.dart';
 import '../features/mood/mood_checkin_screen.dart';
 import '../features/mood/chat_mood_check_in_screen.dart';
 import '../features/mood/mood_history_screen.dart';
 import '../features/summary/session_summary_screen.dart';
+import '../widgets/app_shell.dart';
 import '../features/crisis/crisis_support_screen.dart';
 import '../features/feedback/feedback_screen.dart';
 import '../features/settings/settings_screen.dart';
@@ -46,7 +46,7 @@ GoRouter buildRouter(ConsentState consent) => GoRouter(
         GoRoute(path: '/avatar',        builder: (_, __) => const AvatarScreen()),
 
         // ── Core ────────────────────────────────────────────────────────────
-        GoRoute(path: '/home',     builder: (_, __) => const HomeScreen()),
+        GoRoute(path: '/home',     builder: (_, __) => const AppShell()),
         GoRoute(path: '/summary',  builder: (_, __) => const SessionSummaryScreen()),
         GoRoute(path: '/feedback', builder: (_, __) => const FeedbackScreen()),
         GoRoute(path: '/crisis',   builder: (_, __) => const CrisisSupportScreen()),
