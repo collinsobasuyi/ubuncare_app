@@ -337,67 +337,87 @@ class _ResetDialog extends StatelessWidget {
           color: AppTheme.bgSurface,
           borderRadius: BorderRadius.circular(24),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: Stack(
+          clipBehavior: Clip.none,
           children: [
-            // Warning icon
-            Container(
-              width: 72,
-              height: 72,
-              decoration: BoxDecoration(
-                color: AppTheme.crisisRedSurface,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.delete_forever_rounded,
-                color: AppTheme.crisisRed,
-                size: 36,
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            Text(
-              'This Can\'t Be Undone',
-              textAlign: TextAlign.center,
-              style: AppTheme.headingSm.copyWith(color: AppTheme.crisisRed),
-            ),
-
-            const SizedBox(height: 12),
-
-            Text(
-              'You\'re about to permanently delete:',
-              textAlign: TextAlign.center,
-              style: AppTheme.bodyMd,
-            ),
-
-            const SizedBox(height: 16),
-
-            // List of what gets deleted
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.crisisRedSurface,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  _DeleteItem('All mood check-ins & history'),
-                  _DeleteItem('Your reflections & notes'),
-                  _DeleteItem('Your name & guide preferences'),
-                  _DeleteItem('Consent & onboarding state'),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Actions
-            Row(
+            Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
+                // Space for X button
+                const SizedBox(height: 4),
+
+                // Warning icon
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: AppTheme.crisisRedSurface,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.delete_forever_rounded,
+                    color: AppTheme.crisisRed,
+                    size: 36,
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                Text(
+                  'This Can\'t Be Undone',
+                  textAlign: TextAlign.center,
+                  style: AppTheme.headingSm.copyWith(color: AppTheme.crisisRed),
+                ),
+
+                const SizedBox(height: 12),
+
+                Text(
+                  'You\'re about to permanently delete:',
+                  textAlign: TextAlign.center,
+                  style: AppTheme.bodyMd,
+                ),
+
+                const SizedBox(height: 16),
+
+                // List of what gets deleted
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.crisisRedSurface,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      _DeleteItem('All mood check-ins & history'),
+                      _DeleteItem('Your reflections & notes'),
+                      _DeleteItem('Your name & guide preferences'),
+                      _DeleteItem('Consent & onboarding state'),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Actions — stacked vertically
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    icon: const Icon(Icons.delete_forever_rounded, size: 18),
+                    label: const Text('Yes, Delete Everything'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppTheme.crisisRed,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    onPressed: () => Navigator.pop(context, true),
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                SizedBox(
+                  width: double.infinity,
                   child: OutlinedButton(
                     onPressed: () => Navigator.pop(context, false),
                     style: OutlinedButton.styleFrom(
@@ -407,19 +427,31 @@ class _ResetDialog extends StatelessWidget {
                     child: const Text('Keep My Data'),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton.icon(
-                    icon: const Icon(Icons.delete_forever_rounded, size: 18),
-                    label: const Text('Yes, Reset'),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppTheme.crisisRed,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+              ],
+            ),
+
+            // Close / X button
+            Positioned(
+              top: -8,
+              right: -8,
+              child: Semantics(
+                label: 'Close dialog',
+                button: true,
+                child: InkWell(
+                  onTap: () => Navigator.pop(context, false),
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: AppTheme.bgBorder,
+                      shape: BoxShape.circle,
                     ),
-                    onPressed: () => Navigator.pop(context, true),
+                    child: const Icon(Icons.close_rounded,
+                        size: 16, color: AppTheme.textMuted),
                   ),
                 ),
-              ],
+              ),
             ),
           ],
         ),

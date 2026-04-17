@@ -178,7 +178,7 @@ class _MoodHistoryScreenState extends State<MoodHistoryScreen>
           children: [
             _buildStatsRow(),
             const SizedBox(height: 24),
-            _buildHeatmapCard(),
+            _buildCalendarCard(),
             const SizedBox(height: 24),
             _buildMoodTrendCard(),
           ],
@@ -217,7 +217,7 @@ class _MoodHistoryScreenState extends State<MoodHistoryScreen>
     );
   }
 
-  Widget _buildHeatmapCard() {
+  Widget _buildCalendarCard() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
@@ -238,35 +238,20 @@ class _MoodHistoryScreenState extends State<MoodHistoryScreen>
         children: [
           Row(
             children: [
-              const Icon(Icons.grid_view_rounded,
+              const Icon(Icons.calendar_month_rounded,
                   size: 16, color: AppTheme.primary),
               const SizedBox(width: 8),
               Text(
-                'Activity Heatmap',
+                'Mood Calendar',
                 style: AppTheme.bodyMd.copyWith(
                   fontWeight: FontWeight.w700,
                   color: AppTheme.textDark,
                 ),
               ),
-              const Spacer(),
-              Text(
-                'Last 15 weeks',
-                style: AppTheme.bodySm,
-              ),
             ],
           ),
           const SizedBox(height: 16),
-          _entries.isEmpty
-              ? Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  child: Center(
-                    child: Text(
-                      'Complete a check-in to see your heatmap',
-                      style: AppTheme.bodySm,
-                    ),
-                  ),
-                )
-              : _MoodHeatmap(moodByDay: _moodByDay),
+          _MoodCalendar(moodByDay: _moodByDay),
         ],
       ),
     );
@@ -487,7 +472,7 @@ class _MoodHistoryScreenState extends State<MoodHistoryScreen>
         crossAxisCount: 3,
         mainAxisSpacing: 10,
         crossAxisSpacing: 10,
-        childAspectRatio: 0.9,
+        childAspectRatio: 0.72,
       ),
       itemCount: ms.length,
       itemBuilder: (_, i) {
@@ -598,29 +583,90 @@ class _MoodHistoryScreenState extends State<MoodHistoryScreen>
   void _confirmClear() {
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Clear All History?', style: AppTheme.headingSm),
-        content: Text(
-          'This permanently deletes all your mood reflections.',
-          style: AppTheme.bodyMd,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: AppTheme.bgSurface,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 4),
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      color: AppTheme.crisisRedSurface,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.delete_sweep_rounded,
+                        color: AppTheme.crisisRed, size: 30),
+                  ),
+                  const SizedBox(height: 16),
+                  Text('Clear All History?', style: AppTheme.headingSm),
+                  const SizedBox(height: 10),
+                  Text(
+                    'This permanently deletes all your mood reflections.',
+                    textAlign: TextAlign.center,
+                    style: AppTheme.bodyMd,
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      icon: const Icon(Icons.delete_sweep_rounded, size: 18),
+                      label: const Text('Delete All'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppTheme.crisisRed,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      onPressed: () async {
+                        Navigator.pop(ctx);
+                        await _clearAll();
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: const BorderSide(color: AppTheme.bgBorder),
+                      ),
+                      child: const Text('Cancel'),
+                    ),
+                  ),
+                ],
+              ),
+              Positioned(
+                top: -8,
+                right: -8,
+                child: InkWell(
+                  onTap: () => Navigator.pop(ctx),
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: AppTheme.bgBorder,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.close_rounded,
+                        size: 16, color: AppTheme.textMuted),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            style:
-                TextButton.styleFrom(foregroundColor: AppTheme.crisisRed),
-            onPressed: () async {
-              Navigator.pop(ctx);
-              await _clearAll();
-            },
-            child: const Text('Delete All'),
-          ),
-        ],
       ),
     );
   }
@@ -717,182 +763,232 @@ class _StatCard extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Mood heatmap
+// Mood Calendar
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _MoodHeatmap extends StatelessWidget {
+class _MoodCalendar extends StatefulWidget {
   final Map<String, double> moodByDay;
+  const _MoodCalendar({required this.moodByDay});
 
-  static const double _cell  = 15;
-  static const double _gap   = 3;
-  static const int    _weeks = 15;
+  @override
+  State<_MoodCalendar> createState() => _MoodCalendarState();
+}
 
-  static const _months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+class _MoodCalendarState extends State<_MoodCalendar> {
+  late DateTime _month;
+
+  static const _dayLabels  = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  static const _monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December',
   ];
 
-  const _MoodHeatmap({required this.moodByDay});
+  @override
+  void initState() {
+    super.initState();
+    final n = DateTime.now();
+    _month = DateTime(n.year, n.month);
+  }
 
   static String _key(DateTime d) =>
       '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
-  Color _colorForDay(DateTime day) {
-    final today = DateTime.now();
-    if (day.isAfter(DateTime(today.year, today.month, today.day))) {
-      return Colors.transparent;
-    }
-    final mood = moodByDay[_key(day)];
-    if (mood == null) return const Color(0xFFE8E8E8);
-    if (mood < 3)  return const Color(0xFFFFCDD2);
-    if (mood < 5)  return const Color(0xFFFFE0B2);
-    if (mood < 7)  return const Color(0xFFB2DFDB);
-    if (mood < 9)  return const Color(0xFF81C784);
-    return const Color(0xFF2E9B78);
+  Color _moodFill(double v) {
+    if (v < 3) return const Color(0xFFEF5350);
+    if (v < 5) return const Color(0xFFFF8A65);
+    if (v < 7) return const Color(0xFF78909C);
+    if (v < 9) return AppTheme.primaryMid;
+    return AppTheme.primary;
   }
+
+  void _prevMonth() => setState(
+      () => _month = DateTime(_month.year, _month.month - 1));
+  void _nextMonth() => setState(
+      () => _month = DateTime(_month.year, _month.month + 1));
 
   @override
   Widget build(BuildContext context) {
-    final today     = DateTime.now();
-    // Start from the Monday of (_weeks - 1) full weeks ago
-    final startDate = today.subtract(
-      Duration(days: today.weekday - 1 + (_weeks - 1) * 7),
-    );
+    final now         = DateTime.now();
+    final today       = DateTime(now.year, now.month, now.day);
+    final currentMonth = DateTime(now.year, now.month);
+    final daysInMonth = DateTime(_month.year, _month.month + 1, 0).day;
+    final offset      = (DateTime(_month.year, _month.month).weekday - 1) % 7;
+    final earliest    = DateTime(now.year - 1, now.month);
 
-    // Build list of weeks
-    final weeks = <List<DateTime>>[];
-    var weekStart = startDate;
-    while (!weekStart.isAfter(today)) {
-      weeks.add(
-        List.generate(7, (i) => weekStart.add(Duration(days: i))),
-      );
-      weekStart = weekStart.add(const Duration(days: 7));
-    }
-
-    // Month label positions
-    final monthLabels = <int, String>{};
-    for (int wi = 0; wi < weeks.length; wi++) {
-      final mon = weeks[wi][0];
-      if (wi == 0 || mon.month != weeks[wi - 1][0].month) {
-        monthLabels[wi] = _months[mon.month - 1];
-      }
-    }
+    final canGoPrev = _month.isAfter(earliest);
+    final canGoNext = _month.isBefore(currentMonth);
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Month labels
+        // ── Month navigator ─────────────────────────────────────────────────
         Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const SizedBox(width: 20), // day-label spacer
-            ...List.generate(weeks.length, (wi) => SizedBox(
-              width: _cell + _gap,
-              child: monthLabels.containsKey(wi)
-                  ? Text(
-                      monthLabels[wi]!,
-                      style: const TextStyle(
-                          fontSize: 9, color: AppTheme.textMuted),
-                    )
-                  : null,
-            )),
-          ],
-        ),
-        const SizedBox(height: 4),
-
-        // Grid
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Day labels
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: ['M', '', 'W', '', 'F', '', 'S']
-                  .map((d) => SizedBox(
-                        width: 14,
-                        height: _cell + _gap,
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: d.isNotEmpty
-                              ? Text(
-                                  d,
-                                  style: const TextStyle(
-                                      fontSize: 9,
-                                      color: AppTheme.textMuted),
-                                )
-                              : null,
-                        ),
-                      ))
-                  .toList(),
+            IconButton(
+              icon: const Icon(Icons.chevron_left_rounded),
+              onPressed: canGoPrev ? _prevMonth : null,
+              color: canGoPrev ? AppTheme.primary : AppTheme.bgBorder,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
             ),
-            const SizedBox(width: 4),
-
-            // Week columns
-            ...weeks.map((week) => Padding(
-                  padding: const EdgeInsets.only(right: _gap),
-                  child: Column(
-                    children: week.map((day) {
-                      final color = _colorForDay(day);
-                      final mood = moodByDay[_key(day)];
-                      final today = DateTime.now();
-                      final isFuture = day.isAfter(
-                          DateTime(today.year, today.month, today.day));
-                      final label = isFuture
-                          ? null
-                          : mood == null
-                              ? 'No check-in on ${day.day}/${day.month}'
-                              : 'Mood ${mood.toStringAsFixed(1)} on ${day.day}/${day.month}';
-                      return Semantics(
-                        label: label,
-                        excludeSemantics: label == null,
-                        child: Container(
-                          width: _cell,
-                          height: _cell,
-                          margin: const EdgeInsets.only(bottom: _gap),
-                          decoration: BoxDecoration(
-                            color: color,
-                            borderRadius: BorderRadius.circular(3),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                )),
+            Text(
+              '${_monthNames[_month.month - 1]} ${_month.year}',
+              style: AppTheme.bodyMd.copyWith(
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textDark,
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.chevron_right_rounded),
+              onPressed: canGoNext ? _nextMonth : null,
+              color: canGoNext ? AppTheme.primary : AppTheme.bgBorder,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            ),
           ],
         ),
 
         const SizedBox(height: 10),
 
-        // Legend
+        // ── Day-of-week headers ─────────────────────────────────────────────
         Row(
-          children: [
-            const SizedBox(width: 18),
-            Text('No check-in',
-                style:
-                    const TextStyle(fontSize: 10, color: AppTheme.textMuted)),
-            const SizedBox(width: 6),
-            ...[
-              const Color(0xFFE8E8E8),
-              const Color(0xFFFFCDD2),
-              const Color(0xFFFFE0B2),
-              const Color(0xFFB2DFDB),
-              const Color(0xFF81C784),
-              const Color(0xFF2E9B78),
-            ].map((c) => Container(
-                  width: 12,
-                  height: 12,
-                  margin: const EdgeInsets.only(left: 3),
-                  decoration: BoxDecoration(
-                    color: c,
-                    borderRadius: BorderRadius.circular(2),
+          children: _dayLabels
+              .map((d) => Expanded(
+                    child: Center(
+                      child: Text(
+                        d,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.textMuted,
+                        ),
+                      ),
+                    ),
+                  ))
+              .toList(),
+        ),
+
+        const SizedBox(height: 6),
+
+        // ── Day grid ────────────────────────────────────────────────────────
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 7,
+            childAspectRatio: 1,
+          ),
+          itemCount: offset + daysInMonth,
+          itemBuilder: (_, i) {
+            if (i < offset) return const SizedBox.shrink();
+
+            final day      = i - offset + 1;
+            final date     = DateTime(_month.year, _month.month, day);
+            final isToday  = date == today;
+            final isFuture = date.isAfter(today);
+            final mood     = isFuture ? null : widget.moodByDay[_key(date)];
+
+            return Semantics(
+              label: mood != null
+                  ? '${date.day} ${_monthNames[date.month - 1]}: mood ${mood.toStringAsFixed(1)}'
+                  : isFuture
+                      ? null
+                      : '${date.day} ${_monthNames[date.month - 1]}: no check-in',
+              excludeSemantics: isFuture,
+              child: GestureDetector(
+                onTap: mood != null
+                    ? () => ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              '${date.day} ${_monthNames[date.month - 1]}: Mood ${mood.toStringAsFixed(1)}/10',
+                            ),
+                            duration: const Duration(seconds: 2),
+                            behavior: SnackBarBehavior.floating,
+                            backgroundColor: _moodFill(mood),
+                          ),
+                        )
+                    : null,
+                child: Center(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: mood != null
+                          ? _moodFill(mood).withValues(alpha: 0.85)
+                          : Colors.transparent,
+                      border: isToday
+                          ? Border.all(color: AppTheme.primary, width: 2)
+                          : mood == null && !isFuture
+                              ? Border.all(
+                                  color: AppTheme.bgBorder, width: 1.2)
+                              : null,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '$day',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: isToday
+                              ? FontWeight.w800
+                              : FontWeight.w500,
+                          color: mood != null
+                              ? Colors.white
+                              : isFuture
+                                  ? AppTheme.textMuted
+                                      .withValues(alpha: 0.25)
+                                  : isToday
+                                      ? AppTheme.primary
+                                      : AppTheme.textMuted,
+                        ),
+                      ),
+                    ),
                   ),
-                )),
-            const SizedBox(width: 6),
-            Text('Great mood',
-                style:
-                    const TextStyle(fontSize: 10, color: AppTheme.textMuted)),
+                ),
+              ),
+            );
+          },
+        ),
+
+        const SizedBox(height: 14),
+
+        // ── Legend ──────────────────────────────────────────────────────────
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 14,
+          runSpacing: 6,
+          children: const [
+            _LegendDot(color: Color(0xFFEF5350), label: 'Low'),
+            _LegendDot(color: Color(0xFFFF8A65), label: 'Fair'),
+            _LegendDot(color: Color(0xFF78909C), label: 'Neutral'),
+            _LegendDot(color: AppTheme.primaryMid, label: 'Good'),
+            _LegendDot(color: AppTheme.primary,    label: 'Great'),
           ],
         ),
+      ],
+    );
+  }
+}
+
+class _LegendDot extends StatelessWidget {
+  final Color  color;
+  final String label;
+  const _LegendDot({required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 4),
+        Text(label,
+            style: const TextStyle(fontSize: 10, color: AppTheme.textMuted)),
       ],
     );
   }
@@ -964,8 +1060,11 @@ class _BadgeCard extends StatelessWidget {
           Text(
             milestone.subtitle,
             textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 10,
+              height: 1.2,
               color: earned
                   ? AppTheme.textMuted
                   : const Color(0xFFD0D0D0),
@@ -1090,21 +1189,86 @@ class _EntryCardState extends State<_EntryCard>
       ),
       confirmDismiss: (_) async => showDialog<bool>(
         context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text('Delete entry?', style: AppTheme.headingSm),
-          content: Text('This reflection will be permanently removed.',
-              style: AppTheme.bodyMd),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('Cancel')),
-            TextButton(
-              style:
-                  TextButton.styleFrom(foregroundColor: AppTheme.crisisRed),
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Delete'),
+        builder: (ctx) => Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: AppTheme.bgSurface,
+              borderRadius: BorderRadius.circular(24),
             ),
-          ],
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 4),
+                    Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: AppTheme.crisisRedSurface,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.delete_outline_rounded,
+                          color: AppTheme.crisisRed, size: 26),
+                    ),
+                    const SizedBox(height: 16),
+                    Text('Delete entry?', style: AppTheme.headingSm),
+                    const SizedBox(height: 10),
+                    Text(
+                      'This reflection will be permanently removed.',
+                      textAlign: TextAlign.center,
+                      style: AppTheme.bodyMd,
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppTheme.crisisRed,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: const Text('Delete'),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          side: const BorderSide(color: AppTheme.bgBorder),
+                        ),
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+                  ],
+                ),
+                Positioned(
+                  top: -8,
+                  right: -8,
+                  child: InkWell(
+                    onTap: () => Navigator.pop(ctx, false),
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: AppTheme.bgBorder,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.close_rounded,
+                          size: 16, color: AppTheme.textMuted),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
       onDismissed: (_) => widget.onDelete(),

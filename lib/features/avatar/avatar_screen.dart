@@ -108,201 +108,223 @@ class _AvatarScreenState extends State<AvatarScreen>
       body: SafeArea(
         child: FadeTransition(
           opacity: _fade,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Back
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton.icon(
-                    onPressed: () => context.go(
-                        _fromSettings ? '/settings' : '/consent'),
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 16),
-                    label: const Text('Back'),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // Header icon
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppTheme.primarySurface,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.primary.withValues(alpha: 0.15),
-                        blurRadius: 28,
-                        spreadRadius: 4,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.people_rounded,
-                    color: AppTheme.primary,
-                    size: 44,
-                    semanticLabel: 'Choose your wellness guide',
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                Text(
-                  heading,
-                  textAlign: TextAlign.center,
-                  style: AppTheme.headingMd.copyWith(color: AppTheme.primary),
-                ),
-
-                const SizedBox(height: 8),
-
-                Text(
-                  'Your guide sets the tone for your conversations.\nYou can change this anytime in Settings.',
-                  textAlign: TextAlign.center,
-                  style: AppTheme.bodyMd,
-                ),
-
-                const SizedBox(height: 28),
-
-                // Avatar cards — 2-column grid
-                GridView.count(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 14,
-                  crossAxisSpacing: 14,
-                  childAspectRatio: 0.88,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: _avatars.map((a) {
-                    final isSelected = _selected == a.name;
-                    return Semantics(
-                      button: true,
-                      selected: isSelected,
-                      label: '${a.name} — ${a.tagline}',
-                      child: GestureDetector(
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          setState(() => _selected = a.name);
-                        },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 250),
-                          curve: Curves.easeInOut,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            borderRadius:
-                                BorderRadius.circular(AppTheme.cornerRadiusLg),
-                            color: isSelected
-                                ? a.accent.withValues(alpha: 0.08)
-                                : AppTheme.bgSurface,
-                            border: Border.all(
-                              color: isSelected ? a.accent : AppTheme.bgBorder,
-                              width: isSelected ? 2 : 1,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: isSelected
-                                    ? a.accent.withValues(alpha: 0.18)
-                                    : Colors.black.withValues(alpha: 0.04),
-                                blurRadius: isSelected ? 16 : 6,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // Icon circle
-                              Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Container(
-                                    width: 60,
-                                    height: 60,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: a.accent.withValues(alpha: 0.12),
-                                    ),
-                                    child: Icon(a.icon,
-                                        color: a.accent, size: 30),
-                                  ),
-                                  if (isSelected)
-                                    Positioned(
-                                      top: 0,
-                                      right: 0,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(2),
-                                        decoration: const BoxDecoration(
-                                          color: AppTheme.bgSurface,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Icon(
-                                          Icons.check_circle_rounded,
-                                          color: a.accent,
-                                          size: 16,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-
-                              const SizedBox(height: 12),
-
-                              Text(
-                                a.name,
-                                style: AppTheme.headingSm.copyWith(
-                                  color: isSelected ? a.accent : AppTheme.textDark,
-                                ),
-                              ),
-
-                              const SizedBox(height: 3),
-
-                              Text(
-                                a.tagline,
-                                textAlign: TextAlign.center,
-                                style: AppTheme.bodySm.copyWith(
-                                  color: isSelected
-                                      ? a.accent.withValues(alpha: 0.8)
-                                      : AppTheme.textMuted,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-
-                              const SizedBox(height: 6),
-
-                              Text(
-                                a.desc,
-                                textAlign: TextAlign.center,
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                                style: AppTheme.bodySm.copyWith(
-                                    color: AppTheme.textMuted, fontSize: 11),
-                              ),
-                            ],
-                          ),
+          child: Column(
+            children: [
+              // ── Scrollable content ──────────────────────────────────────
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 24, vertical: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Back
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton.icon(
+                          onPressed: () => context.go(
+                              _fromSettings ? '/settings' : '/consent'),
+                          icon: const Icon(
+                              Icons.arrow_back_ios_new_rounded, size: 16),
+                          label: const Text('Back'),
                         ),
                       ),
-                    );
-                  }).toList(),
-                ),
 
-                const SizedBox(height: 28),
+                      const SizedBox(height: 16),
 
-                // Continue
-                AnimatedOpacity(
-                  opacity: _selected != null ? 1.0 : 0.45,
-                  duration: const Duration(milliseconds: 200),
-                  child: FilledButton.icon(
-                    icon: const Icon(Icons.check_rounded, size: 20),
-                    label: const Text('Start with this Guide'),
-                    onPressed: _selected != null ? _continue : null,
+                      // Header icon
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppTheme.primarySurface,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.primary.withValues(alpha: 0.15),
+                              blurRadius: 24,
+                              spreadRadius: 3,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.people_rounded,
+                          color: AppTheme.primary,
+                          size: 38,
+                          semanticLabel: 'Choose your wellness guide',
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      Text(
+                        heading,
+                        textAlign: TextAlign.center,
+                        style:
+                            AppTheme.headingMd.copyWith(color: AppTheme.primary),
+                      ),
+
+                      const SizedBox(height: 6),
+
+                      Text(
+                        'Sets the tone for your conversations.\nChange anytime in Settings.',
+                        textAlign: TextAlign.center,
+                        style: AppTheme.bodyMd,
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Avatar cards — 2-column grid
+                      GridView.count(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 12,
+                        crossAxisSpacing: 12,
+                        childAspectRatio: 0.78,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: _avatars.map((a) {
+                          final isSelected = _selected == a.name;
+                          return Semantics(
+                            button: true,
+                            selected: isSelected,
+                            label: '${a.name} — ${a.tagline}',
+                            child: GestureDetector(
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                setState(() => _selected = a.name);
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.easeInOut,
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(
+                                      AppTheme.cornerRadiusLg),
+                                  color: isSelected
+                                      ? a.accent.withValues(alpha: 0.08)
+                                      : AppTheme.bgSurface,
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? a.accent
+                                        : AppTheme.bgBorder,
+                                    width: isSelected ? 2 : 1,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: isSelected
+                                          ? a.accent.withValues(alpha: 0.18)
+                                          : Colors.black
+                                              .withValues(alpha: 0.04),
+                                      blurRadius: isSelected ? 16 : 6,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    // Icon circle
+                                    Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Container(
+                                          width: 52,
+                                          height: 52,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: a.accent
+                                                .withValues(alpha: 0.12),
+                                          ),
+                                          child: Icon(a.icon,
+                                              color: a.accent, size: 26),
+                                        ),
+                                        if (isSelected)
+                                          Positioned(
+                                            top: 0,
+                                            right: 0,
+                                            child: Container(
+                                              padding: const EdgeInsets.all(2),
+                                              decoration: const BoxDecoration(
+                                                color: AppTheme.bgSurface,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Icon(
+                                                Icons.check_circle_rounded,
+                                                color: a.accent,
+                                                size: 14,
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+
+                                    const SizedBox(height: 10),
+
+                                    Text(
+                                      a.name,
+                                      style: AppTheme.headingSm.copyWith(
+                                        color: isSelected
+                                            ? a.accent
+                                            : AppTheme.textDark,
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 4),
+
+                                    Text(
+                                      a.tagline,
+                                      textAlign: TextAlign.center,
+                                      style: AppTheme.bodySm.copyWith(
+                                        color: isSelected
+                                            ? a.accent.withValues(alpha: 0.8)
+                                            : AppTheme.textMuted,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 6),
+
+                                    Text(
+                                      a.desc,
+                                      textAlign: TextAlign.center,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: AppTheme.bodySm.copyWith(
+                                          color: AppTheme.textMuted,
+                                          fontSize: 11),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+
+                      const SizedBox(height: 8),
+                    ],
                   ),
                 ),
+              ),
 
-                const SizedBox(height: 20),
-              ],
-            ),
+              // ── Pinned CTA ──────────────────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: AnimatedOpacity(
+                    opacity: _selected != null ? 1.0 : 0.45,
+                    duration: const Duration(milliseconds: 200),
+                    child: FilledButton.icon(
+                      icon: const Icon(Icons.check_rounded, size: 20),
+                      label: const Text('Start with this Guide'),
+                      onPressed: _selected != null ? _continue : null,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

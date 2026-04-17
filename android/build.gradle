@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.9.25' // ✅ COMPATIBLE: Matches Flutter 3.35.7
+    ext.kotlin_version = '2.1.0'
     repositories {
         google()
         mavenCentral()

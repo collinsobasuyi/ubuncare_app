@@ -165,26 +165,24 @@ class _MoodReflectionSummaryScreenState
           ),
         ),
         const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton(
-                onPressed: () => context.push('/chat'),
-                child: const Text('Continue in Chat'),
-              ),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton(
+            onPressed: () => context.push('/chat'),
+            child: const Text('Continue in Chat'),
+          ),
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: AppTheme.bgBorder),
+              foregroundColor: AppTheme.textBody,
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: AppTheme.bgBorder),
-                  foregroundColor: AppTheme.textBody,
-                ),
-                onPressed: () => context.go('/home'),
-                child: const Text('Back Home'),
-              ),
-            ),
-          ],
+            onPressed: () => context.go('/home'),
+            child: const Text('Back Home'),
+          ),
         ),
       ],
     );

@@ -257,40 +257,48 @@ class _MoodCheckInScreenState extends State<MoodCheckInScreen>
   Widget _buildMoodStep() {
     final cfg = _moodConfig(_moodValue);
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: cfg.color.withValues(alpha:0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Text(cfg.emoji, style: const TextStyle(fontSize: 60)),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 16),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: cfg.color.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(cfg.emoji,
+                      style: const TextStyle(fontSize: 52)),
+                ),
+                const SizedBox(height: 16),
+                Text(cfg.label,
+                    style: AppTheme.headingSm
+                        .copyWith(color: AppTheme.textDark)),
+                const SizedBox(height: 6),
+                Text(cfg.desc,
+                    textAlign: TextAlign.center, style: AppTheme.bodyMd),
+                const SizedBox(height: 20),
+                Slider(
+                  min: 0,
+                  max: 10,
+                  divisions: 10,
+                  value: _moodValue,
+                  activeColor: cfg.color,
+                  inactiveColor: cfg.color.withValues(alpha: 0.18),
+                  semanticFormatterCallback: (v) =>
+                      'Mood ${v.round()} out of 10',
+                  onChanged: (v) => setState(() => _moodValue = v),
+                ),
+                const SizedBox(height: 8),
+              ],
             ),
-            const SizedBox(height: 20),
-            Text(cfg.label,
-                style: AppTheme.headingSm.copyWith(color: AppTheme.textDark)),
-            const SizedBox(height: 6),
-            Text(cfg.desc,
-                textAlign: TextAlign.center, style: AppTheme.bodyMd),
-          ],
+          ),
         ),
-        Column(
-          children: [
-            Slider(
-              min: 0, max: 10, divisions: 10,
-              value: _moodValue,
-              activeColor: cfg.color,
-              inactiveColor: cfg.color.withValues(alpha: 0.18),
-              semanticFormatterCallback: (v) => 'Mood ${v.round()} out of 10',
-              onChanged: (v) => setState(() => _moodValue = v),
-            ),
-            _NextButton(step: _step, onTap: _next),
-          ],
-        ),
+        _NextButton(step: _step, onTap: _next),
       ],
     );
   }
@@ -307,14 +315,14 @@ class _MoodCheckInScreenState extends State<MoodCheckInScreen>
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         Expanded(
           child: GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
-              childAspectRatio: 2.6,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              childAspectRatio: 2.2,
             ),
             itemCount: _emotions.length,
             itemBuilder: (_, i) {
@@ -339,6 +347,7 @@ class _MoodCheckInScreenState extends State<MoodCheckInScreen>
             },
           ),
         ),
+        const SizedBox(height: 8),
         _NextButton(step: _step, onTap: _next),
       ],
     );
@@ -350,14 +359,14 @@ class _MoodCheckInScreenState extends State<MoodCheckInScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text("What's affecting your mood today?", style: AppTheme.bodyMd),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         Expanded(
           child: GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
-              childAspectRatio: 2.4,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              childAspectRatio: 2.0,
             ),
             itemCount: _influences.length,
             itemBuilder: (_, i) {
@@ -378,6 +387,7 @@ class _MoodCheckInScreenState extends State<MoodCheckInScreen>
             },
           ),
         ),
+        const SizedBox(height: 8),
         _NextButton(step: _step, onTap: _next),
       ],
     );
@@ -387,40 +397,47 @@ class _MoodCheckInScreenState extends State<MoodCheckInScreen>
   Widget _buildEnergyStep() {
     final cfg = _energyConfig(_energyValue);
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: cfg.color.withValues(alpha:0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(cfg.icon, size: 60, color: cfg.color),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 16),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: cfg.color.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(cfg.icon, size: 52, color: cfg.color),
+                ),
+                const SizedBox(height: 16),
+                Text(cfg.label,
+                    style: AppTheme.headingSm
+                        .copyWith(color: AppTheme.textDark)),
+                const SizedBox(height: 6),
+                Text(cfg.desc,
+                    textAlign: TextAlign.center, style: AppTheme.bodyMd),
+                const SizedBox(height: 20),
+                Slider(
+                  min: 0,
+                  max: 10,
+                  divisions: 10,
+                  value: _energyValue,
+                  activeColor: cfg.color,
+                  inactiveColor: cfg.color.withValues(alpha: 0.18),
+                  semanticFormatterCallback: (v) =>
+                      'Energy ${v.round()} out of 10',
+                  onChanged: (v) => setState(() => _energyValue = v),
+                ),
+                const SizedBox(height: 8),
+              ],
             ),
-            const SizedBox(height: 20),
-            Text(cfg.label,
-                style: AppTheme.headingSm.copyWith(color: AppTheme.textDark)),
-            const SizedBox(height: 6),
-            Text(cfg.desc,
-                textAlign: TextAlign.center, style: AppTheme.bodyMd),
-          ],
+          ),
         ),
-        Column(
-          children: [
-            Slider(
-              min: 0, max: 10, divisions: 10,
-              value: _energyValue,
-              activeColor: cfg.color,
-              inactiveColor: cfg.color.withValues(alpha: 0.18),
-              semanticFormatterCallback: (v) => 'Energy ${v.round()} out of 10',
-              onChanged: (v) => setState(() => _energyValue = v),
-            ),
-            _NextButton(step: _step, onTap: _next),
-          ],
-        ),
+        _NextButton(step: _step, onTap: _next),
       ],
     );
   }

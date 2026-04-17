@@ -1533,7 +1533,7 @@ class _InsightsSheet extends StatelessWidget {
                       crossAxisCount: 2,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
-                      childAspectRatio: 1.3,
+                      childAspectRatio: 1.05,
                     ),
                     itemCount: actions.length,
                     itemBuilder: (_, i) => _ActionCard(
@@ -1736,28 +1736,31 @@ class _ActionCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppTheme.cornerRadius),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(action.emoji, style: const TextStyle(fontSize: 22)),
-                  const SizedBox(height: 8),
-                  Text(
-                    action.title,
-                    style: AppTheme.bodyMd.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textDark,
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(action.description, style: AppTheme.bodySm),
-                ],
+              Text(action.emoji, style: const TextStyle(fontSize: 20)),
+              const SizedBox(height: 6),
+              Text(
+                action.title,
+                style: AppTheme.bodyMd.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textDark,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 3),
+              Expanded(
+                child: Text(
+                  action.description,
+                  style: AppTheme.bodySm,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(height: 6),
               Container(
                 width: double.infinity,
                 height: 3,

@@ -17,24 +17,21 @@ class _AgeGateScreenState extends State<AgeGateScreen>
   late final Animation<double> _fade;
 
   final int _currentYear = DateTime.now().year;
-  late final int _minYear; // oldest (100 years ago)
-  late final int _maxYear; // youngest (10 years ago)
-
+  late final int _minYear;
+  late final int _maxYear;
   int _selectedYear = 0;
 
   @override
   void initState() {
     super.initState();
-
     _ctrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
     )..forward();
     _fade = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
-
     _minYear = _currentYear - 100;
     _maxYear = _currentYear - 10;
-    _selectedYear = _currentYear - 18; // default: exactly 18
+    _selectedYear = _currentYear - 18;
   }
 
   @override
@@ -47,7 +44,6 @@ class _AgeGateScreenState extends State<AgeGateScreen>
   bool get _isEligible => _age >= 18;
 
   void _increment() {
-    // go younger (increase year, decrease age)
     if (_selectedYear < _maxYear) {
       HapticFeedback.selectionClick();
       setState(() => _selectedYear++);
@@ -55,7 +51,6 @@ class _AgeGateScreenState extends State<AgeGateScreen>
   }
 
   void _decrement() {
-    // go older (decrease year, increase age)
     if (_selectedYear > _minYear) {
       HapticFeedback.selectionClick();
       setState(() => _selectedYear--);
@@ -78,8 +73,7 @@ class _AgeGateScreenState extends State<AgeGateScreen>
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.child_care_rounded,
-                color: AppTheme.primary, size: 22),
+            const Icon(Icons.child_care_rounded, color: AppTheme.primary, size: 22),
             const SizedBox(width: 8),
             Text('For Your Safety',
                 style: AppTheme.headingSm.copyWith(color: AppTheme.primary)),
@@ -103,12 +97,9 @@ class _AgeGateScreenState extends State<AgeGateScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Support for young people:',
-                    style: AppTheme.bodyMd.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.primary),
-                  ),
+                  Text('Support for young people:',
+                      style: AppTheme.bodyMd.copyWith(
+                          fontWeight: FontWeight.w600, color: AppTheme.primary)),
                   const SizedBox(height: 8),
                   Text(
                     '• Childline: 0800 1111 (free, 24/7)\n'
@@ -139,225 +130,229 @@ class _AgeGateScreenState extends State<AgeGateScreen>
       body: SafeArea(
         child: FadeTransition(
           opacity: _fade,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Back
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton.icon(
-                    onPressed: () => context.go('/welcome'),
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                        size: 16),
-                    label: const Text('Back'),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // Icon
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppTheme.primarySurface,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.primary.withValues(alpha: 0.15),
-                        blurRadius: 28,
-                        spreadRadius: 4,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.verified_user_rounded,
-                    size: 48,
-                    color: AppTheme.primary,
-                    semanticLabel: 'Age verification',
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                Text(
-                  'What year were you born?',
-                  textAlign: TextAlign.center,
-                  style: AppTheme.headingMd.copyWith(color: AppTheme.primary),
-                ),
-
-                const SizedBox(height: 8),
-
-                Text(
-                  'Ubuncare is for adults 18 and over.',
-                  textAlign: TextAlign.center,
-                  style: AppTheme.bodyMd,
-                ),
-
-                const Spacer(),
-
-                // ── Year picker ─────────────────────────────────────────────
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 24, horizontal: 32),
-                  decoration: BoxDecoration(
-                    color: AppTheme.bgSurface,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: AppTheme.bgBorder),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.primary.withValues(alpha: 0.06),
-                        blurRadius: 20,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
+          child: Column(
+            children: [
+              // ── Scrollable content ─────────────────────────────────────────
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        'Tap to change year',
-                        style: AppTheme.bodySm,
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Decrease (go older)
-                          _ChevronButton(
-                            icon: Icons.chevron_left_rounded,
-                            tooltip: 'Earlier year (older)',
-                            onTap: _decrement,
-                            enabled: _selectedYear > _minYear,
-                          ),
-
-                          const SizedBox(width: 24),
-
-                          // Year display
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 180),
-                            transitionBuilder: (child, anim) =>
-                                FadeTransition(
-                              opacity: anim,
-                              child: SlideTransition(
-                                position: Tween<Offset>(
-                                  begin: const Offset(0, 0.15),
-                                  end: Offset.zero,
-                                ).animate(anim),
-                                child: child,
-                              ),
-                            ),
-                            child: Text(
-                              '$_selectedYear',
-                              key: ValueKey(_selectedYear),
-                              style: TextStyle(
-                                fontSize: 52,
-                                fontWeight: FontWeight.w800,
-                                color: _isEligible
-                                    ? AppTheme.primary
-                                    : AppTheme.crisisRed,
-                                letterSpacing: -1,
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(width: 24),
-
-                          // Increase (go younger)
-                          _ChevronButton(
-                            icon: Icons.chevron_right_rounded,
-                            tooltip: 'Later year (younger)',
-                            onTap: _increment,
-                            enabled: _selectedYear < _maxYear,
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Age badge
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: _isEligible
-                              ? AppTheme.primarySurface
-                              : AppTheme.crisisRedSurface,
-                          borderRadius: BorderRadius.circular(30),
-                          border: Border.all(
-                            color: _isEligible
-                                ? AppTheme.primary.withValues(alpha: 0.25)
-                                : AppTheme.crisisRed.withValues(alpha: 0.25),
-                          ),
+                      // Back
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton.icon(
+                          onPressed: () => context.go('/welcome'),
+                          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 16),
+                          label: const Text('Back'),
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              _isEligible
-                                  ? Icons.check_circle_rounded
-                                  : Icons.info_rounded,
-                              size: 16,
-                              color: _isEligible
-                                  ? AppTheme.primary
-                                  : AppTheme.crisisRed,
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Icon
+                      Container(
+                        padding: const EdgeInsets.all(18),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppTheme.primarySurface,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.primary.withValues(alpha: 0.15),
+                              blurRadius: 24,
+                              spreadRadius: 4,
+                              offset: const Offset(0, 6),
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              _isEligible
-                                  ? 'Age $_age · Eligible'
-                                  : 'Age $_age · Must be 18+',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.verified_user_rounded,
+                          size: 40,
+                          color: AppTheme.primary,
+                          semanticLabel: 'Age verification',
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      Text(
+                        'What year were you born?',
+                        textAlign: TextAlign.center,
+                        style: AppTheme.headingMd.copyWith(color: AppTheme.primary),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      Text(
+                        'Ubuncare is for adults 18 and over.',
+                        textAlign: TextAlign.center,
+                        style: AppTheme.bodyMd,
+                      ),
+
+                      const SizedBox(height: 28),
+
+                      // ── Year picker ──────────────────────────────────────────
+                      Container(
+                        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+                        decoration: BoxDecoration(
+                          color: AppTheme.bgSurface,
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(color: AppTheme.bgBorder),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.primary.withValues(alpha: 0.06),
+                              blurRadius: 20,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            Text('Tap arrows to change year', style: AppTheme.bodySm),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _ChevronButton(
+                                  icon: Icons.chevron_left_rounded,
+                                  tooltip: 'Earlier year (older)',
+                                  onTap: _decrement,
+                                  enabled: _selectedYear > _minYear,
+                                ),
+                                const SizedBox(width: 20),
+                                // FittedBox ensures year text never overflows
+                                SizedBox(
+                                  width: 120,
+                                  child: AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 180),
+                                    transitionBuilder: (child, anim) => FadeTransition(
+                                      opacity: anim,
+                                      child: SlideTransition(
+                                        position: Tween<Offset>(
+                                          begin: const Offset(0, 0.15),
+                                          end: Offset.zero,
+                                        ).animate(anim),
+                                        child: child,
+                                      ),
+                                    ),
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        '$_selectedYear',
+                                        key: ValueKey(_selectedYear),
+                                        style: TextStyle(
+                                          fontSize: 48,
+                                          fontWeight: FontWeight.w800,
+                                          color: _isEligible
+                                              ? AppTheme.primary
+                                              : AppTheme.crisisRed,
+                                          letterSpacing: -1,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 20),
+                                _ChevronButton(
+                                  icon: Icons.chevron_right_rounded,
+                                  tooltip: 'Later year (younger)',
+                                  onTap: _increment,
+                                  enabled: _selectedYear < _maxYear,
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 16),
+
+                            // Age badge
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 250),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              decoration: BoxDecoration(
                                 color: _isEligible
-                                    ? AppTheme.primary
-                                    : AppTheme.crisisRed,
+                                    ? AppTheme.primarySurface
+                                    : AppTheme.crisisRedSurface,
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(
+                                  color: _isEligible
+                                      ? AppTheme.primary.withValues(alpha: 0.25)
+                                      : AppTheme.crisisRed.withValues(alpha: 0.25),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    _isEligible
+                                        ? Icons.check_circle_rounded
+                                        : Icons.info_rounded,
+                                    size: 16,
+                                    color: _isEligible
+                                        ? AppTheme.primary
+                                        : AppTheme.crisisRed,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    _isEligible
+                                        ? 'Age $_age · Eligible'
+                                        : 'Age $_age · Must be 18+',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: _isEligible
+                                          ? AppTheme.primary
+                                          : AppTheme.crisisRed,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
                       ),
+
+                      const SizedBox(height: 16),
+
+                      Text(
+                        'Your birth year is not stored or shared.',
+                        textAlign: TextAlign.center,
+                        style: AppTheme.caption,
+                      ),
+
+                      const SizedBox(height: 8),
                     ],
                   ),
                 ),
+              ),
 
-                const Spacer(),
-
-                // Continue
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: FilledButton.icon(
-                    icon: const Icon(Icons.arrow_forward_rounded, size: 20),
-                    label: const Text('Continue'),
-                    onPressed: _isEligible ? _confirm : null,
-                  ),
+              // ── Pinned CTA ─────────────────────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(28, 8, 28, 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: FilledButton.icon(
+                        icon: const Icon(Icons.arrow_forward_rounded, size: 20),
+                        label: const Text('Continue'),
+                        onPressed: _isEligible ? _confirm : null,
+                      ),
+                    ),
+                    if (!_isEligible) ...[
+                      const SizedBox(height: 8),
+                      TextButton(
+                        onPressed: _showUnderageDialog,
+                        child: const Text('Find support for under 18s'),
+                      ),
+                    ],
+                  ],
                 ),
-
-                const SizedBox(height: 12),
-
-                if (!_isEligible)
-                  TextButton(
-                    onPressed: _showUnderageDialog,
-                    child: const Text('Find support for under 18s'),
-                  ),
-
-                const SizedBox(height: 8),
-
-                Text(
-                  'Your birth year is not stored or shared.',
-                  textAlign: TextAlign.center,
-                  style: AppTheme.caption,
-                ),
-
-                const SizedBox(height: 8),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

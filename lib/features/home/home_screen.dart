@@ -700,24 +700,107 @@ class _HomeScreenState extends State<HomeScreen>
   void _showQuickExitDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Quick Exit', style: AppTheme.headingSm),
-        content: Text('This will immediately close Ubuncare.',
-            style: AppTheme.bodyMd),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Stay in App'),
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: AppTheme.bgSurface,
+            borderRadius: BorderRadius.circular(24),
           ),
-          TextButton(
-            style: TextButton.styleFrom(foregroundColor: AppTheme.crisisRed),
-            onPressed: () async {
-              Navigator.of(ctx).pop();
-              await SystemNavigator.pop();
-            },
-            child: const Text('Exit App'),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 4),
+
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      color: AppTheme.crisisRedSurface,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.exit_to_app_rounded,
+                      color: AppTheme.crisisRed,
+                      size: 30,
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  Text('Quick Exit', style: AppTheme.headingSm),
+
+                  const SizedBox(height: 10),
+
+                  Text(
+                    'This will immediately close Ubuncare.',
+                    textAlign: TextAlign.center,
+                    style: AppTheme.bodyMd,
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      icon: const Icon(Icons.exit_to_app_rounded, size: 18),
+                      label: const Text('Exit App'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppTheme.crisisRed,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      onPressed: () async {
+                        Navigator.of(ctx).pop();
+                        await SystemNavigator.pop();
+                      },
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: const BorderSide(color: AppTheme.bgBorder),
+                      ),
+                      child: const Text('Stay in App'),
+                    ),
+                  ),
+                ],
+              ),
+
+              Positioned(
+                top: -8,
+                right: -8,
+                child: Semantics(
+                  label: 'Close dialog',
+                  button: true,
+                  child: InkWell(
+                    onTap: () => Navigator.pop(ctx),
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: AppTheme.bgBorder,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.close_rounded,
+                          size: 16, color: AppTheme.textMuted),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

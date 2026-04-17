@@ -345,7 +345,8 @@ class _SlidePage extends StatelessWidget {
         opacity: isActive ? entryFade : const AlwaysStoppedAnimation(1),
         child: SlideTransition(
           position: isActive ? entrySlide : const AlwaysStoppedAnimation(Offset.zero),
-          child: Column(
+          child: SingleChildScrollView(
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 24),
@@ -495,6 +496,7 @@ class _SlidePage extends StatelessWidget {
                 ),
               )),
             ],
+          ),
           ),
         ),
       ),

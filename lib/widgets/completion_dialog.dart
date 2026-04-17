@@ -19,7 +19,7 @@ class CompletionDialog {
       context: context,
       barrierDismissible: false,
       barrierLabel: 'Completion Dialog',
-      barrierColor: Colors.black.withValues(alpha:0.25),
+      barrierColor: Colors.black.withValues(alpha: 0.25),
       transitionDuration: const Duration(milliseconds: 400),
       pageBuilder: (context, _, __) => const SizedBox.shrink(),
       transitionBuilder: (context, anim1, anim2, child) {
@@ -52,47 +52,86 @@ class CompletionDialog {
                   Dialog(
                     backgroundColor: Colors.white,
                     elevation: 6,
-                    insetPadding:
-                        const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+                    insetPadding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 24),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(14),
-                            decoration: BoxDecoration(
-                              color: color.withValues(alpha:0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(icon, color: color, size: 36),
-                          ),
-                          const SizedBox(height: 20),
-                          Text(
-                            title,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            message,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              color: Colors.black54,
-                              height: 1.4,
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          Row(
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Expanded(
+                              const SizedBox(height: 4),
+
+                              Container(
+                                padding: const EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  color: color.withValues(alpha: 0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(icon, color: color, size: 36),
+                              ),
+
+                              const SizedBox(height: 20),
+
+                              Text(
+                                title,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
+
+                              const SizedBox(height: 8),
+
+                              Text(
+                                message,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black54,
+                                  height: 1.4,
+                                ),
+                              ),
+
+                              const SizedBox(height: 24),
+
+                              // Primary CTA (top)
+                              SizedBox(
+                                width: double.infinity,
+                                child: FilledButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    if (onPrimary != null) onPrimary();
+                                  },
+                                  style: FilledButton.styleFrom(
+                                    backgroundColor: color,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 14),
+                                  ),
+                                  child: Text(
+                                    primaryLabel,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              const SizedBox(height: 10),
+
+                              // Secondary CTA (below)
+                              SizedBox(
+                                width: double.infinity,
                                 child: OutlinedButton(
                                   onPressed: () {
                                     Navigator.pop(context);
@@ -115,34 +154,34 @@ class CompletionDialog {
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: FilledButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    if (onPrimary != null) onPrimary();
-                                  },
-                                  style: FilledButton.styleFrom(
-                                    backgroundColor: color,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 14),
-                                  ),
-                                  child: const Text(
-                                    'Finish',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
                             ],
                           ),
-                        ],
-                      ),
+                        ),
+
+                        // X close button
+                        Positioned(
+                          top: -8,
+                          right: -8,
+                          child: Semantics(
+                            label: 'Close dialog',
+                            button: true,
+                            child: InkWell(
+                              onTap: () => Navigator.pop(context),
+                              borderRadius: BorderRadius.circular(20),
+                              child: Container(
+                                width: 32,
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade200,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.close_rounded,
+                                    size: 16, color: Colors.black54),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -173,7 +212,8 @@ class _ConfettiPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint();
     for (int i = 0; i < 20; i++) {
-      paint.color = _palette[random.nextInt(_palette.length)].withValues(alpha:0.4);
+      paint.color =
+          _palette[random.nextInt(_palette.length)].withValues(alpha: 0.4);
       final dx = random.nextDouble() * size.width;
       final dy = random.nextDouble() * size.height;
       final radius = random.nextDouble() * 4 + 2;
