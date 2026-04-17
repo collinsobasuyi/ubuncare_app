@@ -1,9 +1,10 @@
 pluginManagement {
+    // --- Resolve Flutter SDK path ---
     def flutterSdkPath = {
         def properties = new Properties()
         file("local.properties").withInputStream { properties.load(it) }
         def flutterSdkPath = properties.getProperty("flutter.sdk")
-        assert flutterSdkPath != null, "flutter.sdk not set in local.properties"
+        assert flutterSdkPath != null : "flutter.sdk not set in local.properties"
         return flutterSdkPath
     }()
 
@@ -17,9 +18,14 @@ pluginManagement {
 }
 
 plugins {
+    // Flutter’s Gradle loader
     id "dev.flutter.flutter-plugin-loader" version "1.0.0"
-    id "com.android.application" version "8.1.0" apply false
-    id "org.jetbrains.kotlin.android" version "1.8.22" apply false
+
+    // ✅ Updated to latest stable Android Gradle Plugin & Kotlin versions
+    id "com.android.application" version "8.5.0" apply false
+    id "com.android.library" version "8.5.0" apply false
+    id "org.jetbrains.kotlin.android" version "1.9.25" apply false
 }
 
+// --- Include app module ---
 include ":app"

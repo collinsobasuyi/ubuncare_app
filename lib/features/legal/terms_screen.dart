@@ -1,0 +1,202 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../app/theme.dart';
+
+class TermsScreen extends StatelessWidget {
+  const TermsScreen({super.key});
+
+  Future<void> _openWebsite() async {
+    final uri = Uri.parse('https://ubuncare.com/terms');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppTheme.bgPage,
+      appBar: AppBar(
+        backgroundColor: AppTheme.primary,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          tooltip: 'Go back',
+          onPressed: () {
+            if (context.canPop()) context.pop();
+          },
+        ),
+        title: const Text('Terms of Use'),
+        actions: [
+          Tooltip(
+            message: 'View on website',
+            child: IconButton(
+              icon: const Icon(Icons.open_in_new_rounded),
+              onPressed: _openWebsite,
+            ),
+          ),
+        ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(24, 8, 24, 48),
+        children: [
+          // Last updated banner
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppTheme.primarySurface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                  color: AppTheme.primary.withValues(alpha: 0.15)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.info_outline_rounded,
+                    size: 16, color: AppTheme.primary),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Last updated: April 2026  ·  Effective immediately',
+                    style: AppTheme.bodySm.copyWith(color: AppTheme.primary),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          _Section(
+            title: '1. Acceptance of Terms',
+            body:
+                'By downloading, installing, or using the Ubuncare app ("the App"), you agree to be bound by these Terms of Use. If you do not agree to these terms, please do not use the App.\n\n'
+                'You must be at least 18 years of age to use Ubuncare. By using this App you confirm you meet this requirement.',
+          ),
+
+          _Section(
+            title: '2. What Ubuncare Is',
+            body:
+                'Ubuncare is a personal mental wellness companion app designed to support daily mood tracking, self-reflection, and wellbeing practices.\n\n'
+                'Ubuncare is NOT a medical device, clinical tool, or substitute for professional mental health treatment. The content provided by Ubuncare — including AI-generated responses — is for general wellbeing and informational purposes only.\n\n'
+                'If you are experiencing a mental health crisis, please contact emergency services or a crisis line immediately.',
+          ),
+
+          _Section(
+            title: '3. Your Data & Privacy',
+            body:
+                'Ubuncare is designed with privacy at its core:\n\n'
+                '• All personal data (mood entries, reflections, preferences) is stored locally on your device only.\n'
+                '• We do not create user accounts or upload your personal data to any server.\n'
+                '• We do not sell, share, or transfer your personal information to third parties.\n\n'
+                'By using the App, you acknowledge that your wellness data remains entirely in your control.',
+          ),
+
+          _Section(
+            title: '4. Use of the App',
+            body:
+                'You agree to use Ubuncare only for lawful purposes and in a manner consistent with your personal wellbeing. You agree not to:\n\n'
+                '• Use the App for any purpose that is unlawful or prohibited by these Terms\n'
+                '• Attempt to reverse-engineer, decompile, or modify the App\n'
+                '• Use the App in any way that could harm others or yourself',
+          ),
+
+          _Section(
+            title: '5. AI-Generated Content',
+            body:
+                'Ubuncare uses artificial intelligence to generate supportive responses during check-ins. These responses are:\n\n'
+                '• Informational and supportive in nature only\n'
+                '• Not a substitute for professional medical or psychological advice\n'
+                '• Generated by automated systems and may not always be accurate or appropriate\n\n'
+                'Always seek the advice of a qualified healthcare professional for medical or mental health concerns.',
+          ),
+
+          _Section(
+            title: '6. Intellectual Property',
+            body:
+                'All content, design, and functionality of the App are owned by Ubuncare and protected by intellectual property laws. You may not copy, reproduce, or distribute any part of the App without prior written permission.',
+          ),
+
+          _Section(
+            title: '7. Limitation of Liability',
+            body:
+                'To the fullest extent permitted by law, Ubuncare and its creators shall not be liable for any indirect, incidental, or consequential damages arising from your use of the App.\n\n'
+                'The App is provided "as is" without warranties of any kind, either express or implied.',
+          ),
+
+          _Section(
+            title: '8. Changes to These Terms',
+            body:
+                'We may update these Terms from time to time. Continued use of the App after changes are posted constitutes your acceptance of the new terms. We will indicate the date of the most recent update at the top of this page.',
+          ),
+
+          _Section(
+            title: '9. Contact',
+            body:
+                'If you have any questions about these Terms, please contact us at:\n\n'
+                'support@ubuncare.com',
+          ),
+
+          const SizedBox(height: 16),
+
+          OutlinedButton.icon(
+            icon: const Icon(Icons.open_in_new_rounded, size: 16),
+            label: const Text('View full terms on website'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppTheme.primary,
+              side: BorderSide(color: AppTheme.primary.withValues(alpha: 0.4)),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+            ),
+            onPressed: _openWebsite,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Section widget
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _Section extends StatelessWidget {
+  final String title;
+  final String body;
+  const _Section({required this.title, required this.body});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF1A2420),
+              height: 1.3,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            body,
+            style: const TextStyle(
+              fontSize: 14,
+              height: 1.65,
+              color: Color(0xFF4A5E57),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Divider(color: AppTheme.bgBorder, height: 1),
+        ],
+      ),
+    );
+  }
+}

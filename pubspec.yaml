@@ -1,8 +1,9 @@
-name: ubuncare_app
-description: "A new Flutter project."
+name: ubuncare
+description: "Ubuncare — your AI-powered mental wellness companion. Combines daily mood tracking, reflection chats, and personalized wellness tools for calm, clarity, and self-care."
 publish_to: 'none'
 
 version: 1.0.0+1
+
 
 environment:
   sdk: ^3.6.0
@@ -20,14 +21,30 @@ dependencies:
   flutter_dotenv: ^6.0.0
   url_launcher: ^6.3.2
   flutter_animate: ^4.5.2
-  fl_chart: ^0.71.0
+  fl_chart: ^1.1.1
+  vibration: ^3.1.4
+  audioplayers: ^6.1.0
+  pedometer: ^3.0.0
+  permission_handler: ^11.3.1
+  shimmer: ^2.0.0
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/app_icon.png"
+  min_sdk_android: 21
+  web:
+    generate: false
 
 flutter:
   uses-material-design: true
   assets:
     - assets/
+    - assets/sounds/

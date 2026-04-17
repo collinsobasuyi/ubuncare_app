@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../config/router.dart';
 import 'consent_state.dart';
+import 'theme.dart';
 
 class UbuncareApp extends StatefulWidget {
   const UbuncareApp({super.key});
@@ -17,9 +18,12 @@ class _UbuncareAppState extends State<UbuncareApp> {
   @override
   void initState() {
     super.initState();
-    // ✅ Build the router immediately — consent already loaded in main.dart
     final consent = Provider.of<ConsentState>(context, listen: false);
     _router = buildRouter(consent);
+    // Sync consent state after startup (was previously in UbuncareRoot)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      consent.syncAfterStartup();
+    });
   }
 
   @override
@@ -29,11 +33,7 @@ class _UbuncareAppState extends State<UbuncareApp> {
         return MaterialApp.router(
           debugShowCheckedModeBanner: false,
           title: 'Ubuncare',
-          theme: ThemeData(
-            colorSchemeSeed: const Color(0xFF0D896C),
-            fontFamily: 'Sans',
-            useMaterial3: true,
-          ),
+          theme: AppTheme.light,
           routerConfig: _router,
         );
       },

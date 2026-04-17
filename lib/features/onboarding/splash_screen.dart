@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../app/theme.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -9,41 +11,75 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _fade;
-  late final Animation<double> _scale;
-  late final Animation<double> _breathing;
+    with TickerProviderStateMixin {
+  late final AnimationController _mainCtrl;
+  late final AnimationController _pulseCtrl;
+
+  late final Animation<double> _logoFade;
+  late final Animation<double> _logoScale;
+  late final Animation<double> _textFade;
+  late final Animation<Offset> _textSlide;
+  late final Animation<double> _taglineFade;
+  late final Animation<double> _ringPulse;
 
   @override
   void initState() {
     super.initState();
 
-    _controller = AnimationController(
+    _mainCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2600),
+      duration: const Duration(milliseconds: 2000),
     );
 
-    _fade = CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.0, 0.6, curve: Curves.easeInOut),
+    _pulseCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    )..repeat(reverse: true);
+
+    // Logo fades + scales in 0–40% of timeline
+    _logoFade = CurvedAnimation(
+      parent: _mainCtrl,
+      curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
+    );
+    _logoScale = Tween<double>(begin: 0.7, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _mainCtrl,
+        curve: const Interval(0.0, 0.5, curve: Curves.elasticOut),
+      ),
     );
 
-    _scale = CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.2, 0.8, curve: Curves.elasticOut),
+    // App name slides up 30–70%
+    _textFade = CurvedAnimation(
+      parent: _mainCtrl,
+      curve: const Interval(0.3, 0.7, curve: Curves.easeOut),
+    );
+    _textSlide = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _mainCtrl,
+        curve: const Interval(0.3, 0.7, curve: Curves.easeOut),
+      ),
     );
 
-    _breathing = CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.6, 1.0, curve: Curves.easeInOut),
+    // Tagline fades in last 50–100%
+    _taglineFade = CurvedAnimation(
+      parent: _mainCtrl,
+      curve: const Interval(0.5, 1.0, curve: Curves.easeOut),
     );
 
-    _controller.forward();
+    // Pulsing outer ring
+    _ringPulse = Tween<double>(begin: 0.85, end: 1.08).animate(
+      CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
+    );
 
-    _controller.addStatusListener((status) {
+    _mainCtrl.forward();
+
+    // Navigate after animation completes + short pause
+    _mainCtrl.addStatusListener((status) {
       if (status == AnimationStatus.completed && mounted) {
-        Future.delayed(const Duration(milliseconds: 700), () {
+        Future.delayed(const Duration(milliseconds: 800), () {
           if (mounted) context.go('/welcome');
         });
       }
@@ -52,212 +88,218 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void dispose() {
-    _controller.dispose();
+    _mainCtrl.dispose();
+    _pulseCtrl.dispose();
     super.dispose();
   }
-
-  // ------------------ UI ------------------
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE6FFFA),
-      body: SafeArea(
-        child: Semantics(
-          label:
-              'Ubuncare loading screen. Your mental wellbeing companion. Please wait while the app loads.',
-          readOnly: true,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppTheme.primary,
+              AppTheme.primaryMid,
+              Color(0xFF3DAA88),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SafeArea(
           child: AnimatedBuilder(
-            animation: _controller,
+            animation: Listenable.merge([_mainCtrl, _pulseCtrl]),
             builder: (context, _) {
-              final scaleValue =
-                  (0.8 + 0.2 * _scale.value) * (1.0 + 0.05 * _breathing.value);
               return Stack(
                 children: [
-                  _background(),
-                  Center(
-                    child: Transform.scale(
-                      scale: scaleValue,
+                  // Background decorative circles (excluded from semantics)
+                  ExcludeSemantics(
+                    child: Positioned(
+                      top: -60,
+                      right: -60,
                       child: Opacity(
-                        opacity: _fade.value,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _logo(),
-                            const SizedBox(height: 36),
-                            _appName(),
-                            const SizedBox(height: 20),
-                            _tagline(),
-                            const SizedBox(height: 48),
-                            _progress(),
-                          ],
+                        opacity: 0.06,
+                        child: Container(
+                          width: 260,
+                          height: 260,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                  _footer(),
+                  ExcludeSemantics(
+                    child: Positioned(
+                      bottom: -80,
+                      left: -40,
+                      child: Opacity(
+                        opacity: 0.05,
+                        child: Container(
+                          width: 300,
+                          height: 300,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Main content
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // ── Logo ──────────────────────────────────────────────
+                        FadeTransition(
+                          opacity: _logoFade,
+                          child: ScaleTransition(
+                            scale: _logoScale,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                // Pulsing outer ring
+                                Transform.scale(
+                                  scale: _ringPulse.value,
+                                  child: Container(
+                                    width: 130,
+                                    height: 130,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Colors.white
+                                            .withValues(alpha: 0.2),
+                                        width: 2,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                // Inner icon circle
+                                Container(
+                                  width: 100,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color:
+                                        Colors.white.withValues(alpha: 0.15),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black
+                                            .withValues(alpha: 0.12),
+                                        blurRadius: 30,
+                                        offset: const Offset(0, 10),
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Icon(
+                                    Icons.spa_rounded,
+                                    color: Colors.white,
+                                    size: 50,
+                                    semanticLabel: 'Ubuncare',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 40),
+
+                        // ── App name ──────────────────────────────────────────
+                        FadeTransition(
+                          opacity: _textFade,
+                          child: SlideTransition(
+                            position: _textSlide,
+                            child: Column(
+                              children: [
+                                const Text(
+                                  'Ubuncare',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 42,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: -0.5,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Container(
+                                  width: 40,
+                                  height: 3,
+                                  decoration: BoxDecoration(
+                                    color:
+                                        Colors.white.withValues(alpha: 0.5),
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // ── Tagline ───────────────────────────────────────────
+                        FadeTransition(
+                          opacity: _taglineFade,
+                          child: Text(
+                            'Your space for calm and clarity',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.85),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: 0.2,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // ── Bottom loading indicator ──────────────────────────────
+                  Positioned(
+                    bottom: 48,
+                    left: 0,
+                    right: 0,
+                    child: FadeTransition(
+                      opacity: _taglineFade,
+                      child: Column(
+                        children: [
+                          Semantics(
+                            label: 'Loading, please wait',
+                            child: SizedBox(
+                              width: 28,
+                              height: 28,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white.withValues(alpha: 0.6),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          Text(
+                            'Preparing your wellness space…',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.6),
+                              fontSize: 13,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               );
             },
           ),
-        ),
-      ),
-    );
-  }
-
-  // ------------------ Widgets ------------------
-
-  Widget _background() {
-    return const Positioned.fill(
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF0D896C),
-              Color(0xFF11A985),
-              Color(0xFF4FE2B5),
-            ],
-            stops: [0.0, 0.5, 1.0],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _logo() {
-    return Container(
-      width: 120,
-      height: 120,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0D896C).withOpacity(0.35),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF0D896C),
-            Color(0xFF11A985),
-            Color(0xFF4FE2B5),
-          ],
-        ),
-      ),
-      child: const Icon(
-        Icons.psychology_alt_rounded,
-        color: Colors.white,
-        size: 56,
-        semanticLabel: 'Ubuncare logo icon',
-      ),
-    );
-  }
-
-  Widget _appName() {
-    return const Text(
-      'Ubuncare',
-      style: TextStyle(
-        fontSize: 42,
-        fontWeight: FontWeight.w800,
-        color: Colors.white,
-        letterSpacing: 1.2,
-        shadows: [
-          Shadow(
-            offset: Offset(1.5, 2),
-            blurRadius: 8,
-            color: Colors.black26,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _tagline() {
-    return AnimatedOpacity(
-      opacity: _controller.value > 0.5 ? 1.0 : 0.0,
-      duration: const Duration(milliseconds: 600),
-      child: const Text(
-        'A gentle space for reflection',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w500,
-          color: Colors.white,
-          shadows: [
-            Shadow(
-              offset: Offset(1, 1),
-              blurRadius: 4,
-              color: Colors.black26,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _progress() {
-    return SizedBox(
-      width: 44,
-      height: 44,
-      child: CircularProgressIndicator(
-        value: _controller.value,
-        strokeWidth: 3,
-        backgroundColor: Colors.white24,
-        valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-        semanticsLabel: 'Loading progress indicator',
-      ),
-    );
-  }
-
-  Widget _footer() {
-    return Positioned(
-      bottom: 36,
-      left: 0,
-      right: 0,
-      child: AnimatedOpacity(
-        opacity: _controller.value > 0.7 ? 1.0 : 0.0,
-        duration: const Duration(milliseconds: 600),
-        child: const Column(
-          children: [
-            Text(
-              'Your mental wellbeing companion',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
-                shadows: [
-                  Shadow(
-                    offset: Offset(1, 1),
-                    blurRadius: 4,
-                    color: Colors.black26,
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Safe • Private • Compassionate',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.white,
-                fontWeight: FontWeight.w400,
-                shadows: [
-                  Shadow(
-                    offset: Offset(1, 1),
-                    blurRadius: 3,
-                    color: Colors.black26,
-                  ),
-                ],
-              ),
-            ),
-          ],
         ),
       ),
     );

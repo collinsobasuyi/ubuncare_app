@@ -1,7 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../../../app/consent_state.dart';
+import '../../app/consent_state.dart';
+import '../../app/theme.dart';
+
+class _AvatarOption {
+  final String name;
+  final String tagline;
+  final String desc;
+  final IconData icon;
+  final Color accent;
+
+  const _AvatarOption({
+    required this.name,
+    required this.tagline,
+    required this.desc,
+    required this.icon,
+    required this.accent,
+  });
+}
 
 class AvatarScreen extends StatefulWidget {
   const AvatarScreen({super.key});
@@ -10,215 +28,281 @@ class AvatarScreen extends StatefulWidget {
   State<AvatarScreen> createState() => _AvatarScreenState();
 }
 
-class _AvatarScreenState extends State<AvatarScreen> {
-  String? _selectedAvatar;
+class _AvatarScreenState extends State<AvatarScreen>
+    with SingleTickerProviderStateMixin {
+  String? _selected;
 
-  final List<Map<String, String>> _avatars = [
-    {'name': 'Amani', 'emoji': '🌿', 'desc': 'Grounded and calming'},
-    {'name': 'Kora', 'emoji': '🔥', 'desc': 'Warm and encouraging'},
-    {'name': 'Nova', 'emoji': '🌙', 'desc': 'Reflective and insightful'},
-    {'name': 'Zuri', 'emoji': '💫', 'desc': 'Gentle and uplifting'},
+  late final AnimationController _animCtrl;
+  late final Animation<double> _fade;
+
+  static const _avatars = [
+    _AvatarOption(
+      name: 'Amani',
+      tagline: 'Calm & grounded',
+      desc: 'Steady, peaceful energy that helps you feel settled and safe.',
+      icon: Icons.eco_rounded,
+      accent: Color(0xFF2E9B78),
+    ),
+    _AvatarOption(
+      name: 'Kora',
+      tagline: 'Warm & encouraging',
+      desc: 'Brings warmth and gentle encouragement when you need it most.',
+      icon: Icons.local_fire_department_rounded,
+      accent: Color(0xFFE9963A),
+    ),
+    _AvatarOption(
+      name: 'Nova',
+      tagline: 'Reflective & insightful',
+      desc: 'Thoughtful and perceptive, helps you find clarity within.',
+      icon: Icons.nights_stay_rounded,
+      accent: Color(0xFF5C6BC0),
+    ),
+    _AvatarOption(
+      name: 'Zuri',
+      tagline: 'Gentle & uplifting',
+      desc: 'Light-hearted and kind, lifts your spirit one small step at a time.',
+      icon: Icons.auto_awesome_rounded,
+      accent: Color(0xFF8E44AD),
+    ),
   ];
 
   @override
   void initState() {
     super.initState();
-    // Load previous avatar if any
+    _animCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    )..forward();
+    _fade = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
+
     final saved = context.read<ConsentState>().selectedAvatar;
-    if (saved != null) _selectedAvatar = saved;
+    if (saved != null) _selected = saved;
   }
 
-  Future<void> _saveAvatarAndContinue(BuildContext context) async {
-    final state = context.read<ConsentState>();
-    await state.selectAvatar(_selectedAvatar!);
-    if (context.mounted) context.go('/home');
+  @override
+  void dispose() {
+    _animCtrl.dispose();
+    super.dispose();
+  }
+
+  bool get _fromSettings =>
+      GoRouterState.of(context).uri.queryParameters['from'] == 'settings';
+
+  Future<void> _continue() async {
+    if (_selected == null) return;
+    HapticFeedback.lightImpact();
+    await context.read<ConsentState>().selectAvatar(_selected!);
+    if (!mounted) return;
+    context.go(_fromSettings ? '/settings' : '/home');
   }
 
   @override
   Widget build(BuildContext context) {
-    const Color primaryTeal = Color(0xFF0D896C);
+    final userName = context.read<ConsentState>().userName;
+    final heading = (userName != null && userName.isNotEmpty)
+        ? 'Choose Your Guide, ${userName.split(' ').first}'
+        : 'Choose Your Guide';
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.bgPage,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  onPressed: () => context.go('/consent'),
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                      color: primaryTeal, size: 18),
-                  label: const Text(
-                    'Back',
-                    style: TextStyle(
-                        color: primaryTeal,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600),
+        child: FadeTransition(
+          opacity: _fade,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Back
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    onPressed: () => context.go(
+                        _fromSettings ? '/settings' : '/consent'),
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 16),
+                    label: const Text('Back'),
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
 
-              // Logo icon
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF0D896C),
-                      Color(0xFF11A985),
-                      Color(0xFF4FE2B5),
+                const SizedBox(height: 20),
+
+                // Header icon
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppTheme.primarySurface,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primary.withValues(alpha: 0.15),
+                        blurRadius: 28,
+                        spreadRadius: 4,
+                        offset: const Offset(0, 8),
+                      ),
                     ],
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: primaryTeal.withOpacity(0.25),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.psychology_alt_rounded,
-                  color: Colors.white,
-                  size: 44,
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              const Text(
-                'Choose Your Guide',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: primaryTeal,
-                ),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Pick an avatar that feels right for you.\nEach brings a gentle tone and energy.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  height: 1.5,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // Avatar Grid
-              GridView.count(
-                crossAxisCount: 2,
-                mainAxisSpacing: 20,
-                crossAxisSpacing: 20,
-                childAspectRatio: 1.1,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                children: _avatars.map((avatar) {
-                  final isSelected = _selectedAvatar == avatar['name'];
-                  return GestureDetector(
-                    onTap: () => setState(() => _selectedAvatar = avatar['name']),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 250),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        gradient: isSelected
-                            ? const LinearGradient(
-                                colors: [
-                                  Color(0xFF0D896C),
-                                  Color(0xFF11A985),
-                                  Color(0xFF4FE2B5),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              )
-                            : const LinearGradient(
-                                colors: [Colors.white, Color(0xFFF6F6F6)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                        border: Border.all(
-                          color:
-                              isSelected ? primaryTeal : Colors.grey.shade300,
-                          width: 2,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(avatar['emoji']!,
-                                style: const TextStyle(fontSize: 40)),
-                            const SizedBox(height: 8),
-                            Text(
-                              avatar['name']!,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color:
-                                    isSelected ? Colors.white : Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              avatar['desc']!,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color:
-                                    isSelected ? Colors.white70 : Colors.black54,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 32),
-
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: _selectedAvatar != null
-                        ? primaryTeal
-                        : primaryTeal.withOpacity(0.4),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    textStyle: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w600),
+                  child: const Icon(
+                    Icons.people_rounded,
+                    color: AppTheme.primary,
+                    size: 44,
+                    semanticLabel: 'Choose your wellness guide',
                   ),
-                  onPressed: _selectedAvatar != null
-                      ? () => _saveAvatarAndContinue(context)
-                      : null,
-                  child: const Text('Continue'),
                 ),
-              ),
-              const SizedBox(height: 24),
-            ],
+
+                const SizedBox(height: 20),
+
+                Text(
+                  heading,
+                  textAlign: TextAlign.center,
+                  style: AppTheme.headingMd.copyWith(color: AppTheme.primary),
+                ),
+
+                const SizedBox(height: 8),
+
+                Text(
+                  'Your guide sets the tone for your conversations.\nYou can change this anytime in Settings.',
+                  textAlign: TextAlign.center,
+                  style: AppTheme.bodyMd,
+                ),
+
+                const SizedBox(height: 28),
+
+                // Avatar cards — 2-column grid
+                GridView.count(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 14,
+                  crossAxisSpacing: 14,
+                  childAspectRatio: 0.88,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: _avatars.map((a) {
+                    final isSelected = _selected == a.name;
+                    return Semantics(
+                      button: true,
+                      selected: isSelected,
+                      label: '${a.name} — ${a.tagline}',
+                      child: GestureDetector(
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          setState(() => _selected = a.name);
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.easeInOut,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            borderRadius:
+                                BorderRadius.circular(AppTheme.cornerRadiusLg),
+                            color: isSelected
+                                ? a.accent.withValues(alpha: 0.08)
+                                : AppTheme.bgSurface,
+                            border: Border.all(
+                              color: isSelected ? a.accent : AppTheme.bgBorder,
+                              width: isSelected ? 2 : 1,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: isSelected
+                                    ? a.accent.withValues(alpha: 0.18)
+                                    : Colors.black.withValues(alpha: 0.04),
+                                blurRadius: isSelected ? 16 : 6,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Icon circle
+                              Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Container(
+                                    width: 60,
+                                    height: 60,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: a.accent.withValues(alpha: 0.12),
+                                    ),
+                                    child: Icon(a.icon,
+                                        color: a.accent, size: 30),
+                                  ),
+                                  if (isSelected)
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: const BoxDecoration(
+                                          color: AppTheme.bgSurface,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          Icons.check_circle_rounded,
+                                          color: a.accent,
+                                          size: 16,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 12),
+
+                              Text(
+                                a.name,
+                                style: AppTheme.headingSm.copyWith(
+                                  color: isSelected ? a.accent : AppTheme.textDark,
+                                ),
+                              ),
+
+                              const SizedBox(height: 3),
+
+                              Text(
+                                a.tagline,
+                                textAlign: TextAlign.center,
+                                style: AppTheme.bodySm.copyWith(
+                                  color: isSelected
+                                      ? a.accent.withValues(alpha: 0.8)
+                                      : AppTheme.textMuted,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+
+                              const SizedBox(height: 6),
+
+                              Text(
+                                a.desc,
+                                textAlign: TextAlign.center,
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTheme.bodySm.copyWith(
+                                    color: AppTheme.textMuted, fontSize: 11),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+
+                const SizedBox(height: 28),
+
+                // Continue
+                AnimatedOpacity(
+                  opacity: _selected != null ? 1.0 : 0.45,
+                  duration: const Duration(milliseconds: 200),
+                  child: FilledButton.icon(
+                    icon: const Icon(Icons.check_rounded, size: 20),
+                    label: const Text('Start with this Guide'),
+                    onPressed: _selected != null ? _continue : null,
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),
