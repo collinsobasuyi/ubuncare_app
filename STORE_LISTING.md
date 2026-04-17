@@ -174,3 +174,46 @@ Ubuncare does not collect, store, or share any personal data.
 All mood check-ins, conversations, and wellness data are stored
 locally on the user's device and never transmitted to any server.
 No account is required to use the app.
+
+---
+
+## SCREENSHOTS
+
+### Google Play
+
+Required sizes:
+- Phone: minimum 2 screenshots, 1080×1920px (portrait)
+- Feature graphic: 1024×500px (banner shown at top of listing)
+
+### App Store
+
+Required sizes:
+- iPhone 6.7" — 1290×2796px — required
+- iPhone 5.5" — 1242×2208px — required
+- iPad — optional
+
+### Scenes to capture (use same 6 for both stores)
+
+1. Home screen — showing streak + grid
+2. Mood chat check-in — mid conversation
+3. Wellness hub — showing all tools
+4. Breathing exercise — in progress
+5. Avatar selection screen — showing all 4 guides
+6. Crisis support screen
+
+### How to take them
+
+iOS Simulator (6.7" — iPhone 15 Pro Max):
+  open -a Simulator
+  Then Cmd+S inside the simulator to screenshot
+
+Android Emulator:
+  flutter run
+  Use the camera icon in the emulator toolbar
+
+Or screenshot on a real device and crop to exact dimensions in Figma, Canva, or Preview.
+
+### Where to upload
+
+Google Play:  Grow → Store presence → Main store listing → Screenshots
+App Store:    your version → App Previews and Screenshots
